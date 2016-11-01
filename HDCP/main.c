@@ -16,14 +16,14 @@
 #define PRINTF(...)
 #endif
 
-static void recv_bcp(struct bcp_conn *c,struct data_hdr hdr)
+static void recv_hdcp(struct hdcp_conn *c,struct data_hdr hdr)
 {
-//  PRINTF("DEBUG: Inside BCP callback.\n");
+//  PRINTF("DEBUG: Inside HDCP callback.\n");
 printf("Hurray! Reached Sink.Received packets.Origin = %d.%d Seq no = %d\n",hdr.origin.u8[0],hdr.origin.u8[1],hdr.origin_seq_no);
 }
 
-static const struct bcp_callbacks bcp_callbacks = { recv_bcp };
-static struct bcp_conn hdcp;
+static const struct hdcp_callbacks hdcp_callbacks = { recv_hdcp };
+static struct hdcp_conn hdcp;
 
 /*---------------------------------------------------------------------------*/
 PROCESS(main_process, "Main process LIFO with virtual queue pps=0.25");
@@ -46,8 +46,8 @@ PROCESS_THREAD(main_process, ev, data)
     addr1.u8[0]=40;
     addr1.u8[1]=0;
 
-    bcp_set_sink(&hdcp, &addr);
-    bcp_open(&hdcp, 140, &bcp_callbacks);
+    hdcp_set_sink(&hdcp, &addr);
+    hdcp_open(&hdcp, 140, &hdcp_callbacks);
 
     // cc2420_set_txpower(20);
     // txpower = cc2420_get_txpower();
@@ -113,7 +113,7 @@ PROCESS_THREAD(main_process, ev, data)
                 if(!rimeaddr_cmp(&addr, &rimeaddr_node_addr)) 
                 {
                     //PRINTF("7\n");            
-                    bcp_send(&hdcp);
+                    hdcp_send(&hdcp);
                 }
                 //PRINTF("8\n");
                 etimer_reset(&timer);

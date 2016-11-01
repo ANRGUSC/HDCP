@@ -20,8 +20,8 @@ struct packetstack
 struct data_hdr 
 {
   //uint32_t path;
-  //uint32_t bcp_delay;			// Delay experienced by this packet
-  uint16_t bcp_backpressure;	// Node backpressure measurement for neighbors
+  //uint32_t hdcp_delay;			// Delay experienced by this packet
+  uint16_t hdcp_backpressure;	// Node backpressure measurement for neighbors
   uint16_t tx_count;			// Total transmission count experienced by the packet
   uint32_t timestamp;			//timestamp
   uint16_t delay;                       //delay
@@ -41,7 +41,7 @@ struct packetstack_item
   struct packetstack *stack;
   void *ptr;
 
-  // BCP Header
+  // HDCP Header
   struct data_hdr hdr;
 };
 

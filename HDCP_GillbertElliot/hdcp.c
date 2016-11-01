@@ -11,7 +11,7 @@
 #include "lib/random.h"
 static uint16_t s_no = 0;
 static const struct packetbuf_attrlist attributes[] = {
-	BCP_ATTRIBUTES
+	HDCP_ATTRIBUTES
 	PACKETBUF_ATTR_LAST };
 #define VQ 1 //Set 1 to use Virtual Queue
 #define FIFO 0
@@ -44,7 +44,7 @@ bool tx_flag1=0;
 bool first_send=0;
 	struct recent_packet 
 	{
-	  	struct bcp_conn *conn;
+	  	struct hdcp_conn *conn;
   		rimeaddr_t originator;
   		uint16_t eseqno;
   		uint16_t hop_count;
@@ -52,7 +52,7 @@ bool first_send=0;
 
 	static struct recent_packet recent_packets[NUM_RECENT_PACKETS];
 	static uint8_t recent_packet_ptr;	
-	static void add_packet_to_recent_packets(struct bcp_conn *tc)
+	static void add_packet_to_recent_packets(struct hdcp_conn *tc)
 	{
 		struct data_hdr hdr;
   		memcpy(&hdr, packetbuf_dataptr(), sizeof(struct data_hdr));
@@ -68,9 +68,9 @@ bool first_send=0;
 	// Forward Declarations 
 	static void send_packet_pg(void *ptr);
 	static void send_beacon(void *ptr);
-	static void send_ack(struct bcp_conn *bc, const rimeaddr_t *to, const rimeaddr_t *from, uint16_t seq_no);
+	static void send_ack(struct hdcp_conn *bc, const rimeaddr_t *to, const rimeaddr_t *from, uint16_t seq_no);
 	static void retransmit_callback(void *ptr);
-	static struct packetstack_item *push_data_packet(struct bcp_conn *c);
+	static struct packetstack_item *push_data_packet(struct hdcp_conn *c);
 
 	/*---------------------------------------------------------------------------*/
 	MEMB(send_stack_memb, struct packetstack_item, MAX_SENDING_STACK);
@@ -110,7 +110,7 @@ bool first_send=0;
 		bool hop_flag=false;
 		uint16_t sn;
 		
-		struct bcp_conn *bc = (struct bcp_conn *)((char *)c- offsetof(struct bcp_conn, broadcast_conn));
+		struct hdcp_conn *bc = (struct hdcp_conn *)((char *)c- offsetof(struct hdcp_conn, broadcast_conn));
 		static struct data_hdr hdr;
 		static struct data_hdr *buf_hdr;
 		static struct packetstack_item *i;
@@ -154,7 +154,7 @@ bool first_send=0;
 						bc->virtual_queue_size++;
 					
 					//PRINTF("From4 %d:%d\n",from->u8[0],from->u8[1]);
-					routing_table_update_entry(&bc->routing_table, from, hdr.bcp_backpressure); 
+					routing_table_update_entry(&bc->routing_table, from, hdr.hdcp_backpressure); 
 				}
 			} 
 			else 
@@ -213,7 +213,7 @@ bool first_send=0;
 							
 						}
 						send_ack(bc, from,&hdr.origin,sn);// Only send an ack if our stack isnt full
-						routing_table_update_entry(&bc->routing_table, from, hdr.bcp_backpressure);// Update the table
+						routing_table_update_entry(&bc->routing_table, from, hdr.hdcp_backpressure);// Update the table
 						PRINTF("P_received_forwarded_packet_at:%7lu   x %u from %d.%d with_hop_count %d timestamp %lu and delay %u  ", clock_time(), hdr.origin_seq_no, hdr.origin.u8[0], hdr.origin.u8[1], hdr.hop_count, hdr.timestamp,hdr.delay);
 						PRINTF("From %d:%d\n",from->u8[0],from->u8[1]);
 
@@ -224,8 +224,8 @@ bool first_send=0;
 						}
 						if(OWNDEBUG)
 						{	
-							if(hdr.bcp_backpressure>10)
-      							PRINTF("Backpressure Error1 %d\n",hdr.bcp_backpressure);
+							if(hdr.hdcp_backpressure>10)
+      							PRINTF("Backpressure Error1 %d\n",hdr.hdcp_backpressure);
       					}
 					} 
 					else 
@@ -244,7 +244,7 @@ bool first_send=0;
 					if(!hop_flag)
 						send_ack(bc, from,&hdr.origin,sn);
 										//PRINTF("From %d.%d\n",from->u8[0],from->u8[1]);
-					routing_table_update_entry(&bc->routing_table, from, hdr.bcp_backpressure);
+					routing_table_update_entry(&bc->routing_table, from, hdr.hdcp_backpressure);
 					if(!(bc->is_sink)) 
 						PRINTF("Duplicate_packet_at:%7lu   x %u     from %d.%d with_hop_count %d timestamp %lu and delay %u \n", clock_time(), hdr.origin_seq_no, hdr.origin.u8[0], hdr.origin.u8[1], hdr.hop_count, hdr.timestamp,hdr.delay);	
 
@@ -278,8 +278,8 @@ bool first_send=0;
 			if(packetbuf_attr(PACKETBUF_ATTR_PACKET_TYPE)==PACKETBUF_ATTR_PACKET_TYPE_DATA)
 			{	
 				//PRINTF("yes, %u\n",);
-				routing_table_update_entry(&bc->routing_table, from, hdr.bcp_backpressure);
-				//PRINTF("From3 %d:%d,  %u\n",from->u8[0],from->u8[1],hdr.bcp_backpressure);
+				routing_table_update_entry(&bc->routing_table, from, hdr.hdcp_backpressure);
+				//PRINTF("From3 %d:%d,  %u\n",from->u8[0],from->u8[1],hdr.hdcp_backpressure);
 
 				if((ctimer_expired(&(bc->send_timer)))&&(!bc->sending)) // Reset the send data timer
 				{
@@ -288,18 +288,18 @@ bool first_send=0;
 				}
 				if(OWNDEBUG)
 				{	
-					if(hdr.bcp_backpressure>10)
-      						PRINTF("Backpressure Error3 %d\n",hdr.bcp_backpressure);
+					if(hdr.hdcp_backpressure>10)
+      						PRINTF("Backpressure Error3 %d\n",hdr.hdcp_backpressure);
       			}
       		}
 		}
 	
-		//Invoke the callback for BCP recv if this node was the intended 'hop' or is the sink
+		//Invoke the callback for HDCP recv if this node was the intended 'hop' or is the sink
 		/*if(rimeaddr_cmp(&sentToNode, &rimeaddr_node_addr)) {
 		if(bc->cb->recv != NULL) {
 		bc->cb->recv(bc,hdr);
 		} else {
-		PRINTF("BCP: Error, BCP receive callback was not set.\n");
+		PRINTF("HDCP: Error, HDCP receive callback was not set.\n");
 		}
 		}*/
 		LAST: 
@@ -313,18 +313,18 @@ bool first_send=0;
 	static void sent_from_broadcast(struct broadcast_conn *c, int status, int transmissions)
 	{
 		//PRINTF("sent_from_broadcast called\n");	
-		// Cast the broadcast connection as a BCP connection
-		struct bcp_conn *bcp_conn = (struct bcp_conn *)((char *)c-offsetof(struct bcp_conn, broadcast_conn));
+		// Cast the broadcast connection as a HDCP connection
+		struct hdcp_conn *hdcp_conn = (struct hdcp_conn *)((char *)c-offsetof(struct hdcp_conn, broadcast_conn));
 		if(packetbuf_attr(PACKETBUF_ATTR_PACKET_TYPE) == PACKETBUF_ATTR_PACKET_TYPE_BEACON) 
 		{
 			//PRINTF("1\n");	
 			// This was a beacon. Set sending to false and reset the beacon timer
-			if(ctimer_expired(&bcp_conn->beacon_timer)) // Reset the beacon timer
+			if(ctimer_expired(&hdcp_conn->beacon_timer)) // Reset the beacon timer
 			{
-				clock_time_t time1 = (bcp_conn->is_sink) ? FAST_BEACON_TIME : BEACON_TIME;
-				ctimer_set(&bcp_conn->beacon_timer, time1, send_beacon, bcp_conn);
+				clock_time_t time1 = (hdcp_conn->is_sink) ? FAST_BEACON_TIME : BEACON_TIME;
+				ctimer_set(&hdcp_conn->beacon_timer, time1, send_beacon, hdcp_conn);
 			}
-			bcp_conn->sending = false;
+			hdcp_conn->sending = false;
 		}	
 		else //This was a data message. Set up retransmission timer in case it does not get there
 		{
@@ -337,17 +337,17 @@ bool first_send=0;
 			//  	first_send=0;
 			// }
 			//PRINTF("TIMER=%lu \n",time1);
-			//clock_time_t time1 = MIN_TIME+(random_rand()%((bcp_conn->tx_count+1)*REXMIT_TIME));// Retransmission time
+			//clock_time_t time1 = MIN_TIME+(random_rand()%((hdcp_conn->tx_count+1)*REXMIT_TIME));// Retransmission time
 			
-			ctimer_stop(&bcp_conn->retransmission_timer);// Start the retransmission timer
-			ctimer_set(&bcp_conn->retransmission_timer, time1, retransmit_callback, bcp_conn);
+			ctimer_stop(&hdcp_conn->retransmission_timer);// Start the retransmission timer
+			ctimer_set(&hdcp_conn->retransmission_timer, time1, retransmit_callback, hdcp_conn);
 			//clock_time_t time = SEND_TIME_DELAY;
 			////PG
 			//clock_time_t time2 = SEND_TIME_DELAY;
-			//ctimer_set(&bcp_conn->send_timer, time2, send_packet_pg, bcp_conn);
+			//ctimer_set(&hdcp_conn->send_timer, time2, send_packet_pg, hdcp_conn);
  			
- 			//ctimer_reset(&bcp_conn->send_timer);
- 			//ctimer_restart(&bcp_conn->beacon_timer);
+ 			//ctimer_reset(&hdcp_conn->send_timer);
+ 			//ctimer_restart(&hdcp_conn->beacon_timer);
 
 		}
 		//PRINTF("sent_from_broadcast called1\n");	
@@ -357,52 +357,52 @@ bool first_send=0;
 	{
 		
 		struct ack_msg hdr;
-		struct bcp_conn *bcp_conn = (struct bcp_conn *)((char *)c- offsetof(struct bcp_conn, unicast_conn));// Cast the unicast connection as a BCP connection
+		struct hdcp_conn *hdcp_conn = (struct hdcp_conn *)((char *)c- offsetof(struct hdcp_conn, unicast_conn));// Cast the unicast connection as a HDCP connection
 		memcpy(&hdr, packetbuf_dataptr(), sizeof(struct ack_msg));
 	//	if(OWNDEBUG1)
 			//PRINTF("CLock=%lu \n",SEND_TIME_DELAY);
-		PRINTF("recv_from_unicast called seq: %d   actual %d \n",(bcp_conn->current_packet->hdr).origin_seq_no,packetbuf_attr(PACKETBUF_ATTR_PACKET_ID));	
-		//PRINTF("ack delay= %lu \n",(clock_time() - (bcp_conn->current_packet->hdr).timestamp));
+		PRINTF("recv_from_unicast called seq: %d   actual %d \n",(hdcp_conn->current_packet->hdr).origin_seq_no,packetbuf_attr(PACKETBUF_ATTR_PACKET_ID));	
+		//PRINTF("ack delay= %lu \n",(clock_time() - (hdcp_conn->current_packet->hdr).timestamp));
 		struct packetstack_item *i;
-		//if(bcp_conn->current_packet==NULL)
+		//if(hdcp_conn->current_packet==NULL)
 		//{
 		//	PRINTF("Nothing to Ack\n");
 		//	return;
 		//}
 		
-		if((bcp_conn->current_packet->hdr).origin_seq_no==packetbuf_attr(PACKETBUF_ATTR_PACKET_ID)) //check 1. TODO: Add source check
+		if((hdcp_conn->current_packet->hdr).origin_seq_no==packetbuf_attr(PACKETBUF_ATTR_PACKET_ID)) //check 1. TODO: Add source check
 		{
 			//PRINTF("INSIDE\n");
 			
-			i = bcp_conn->current_packet;
+			i = hdcp_conn->current_packet;
 			if(i != NULL) 
 			{
-				if(!rimeaddr_cmp(&((bcp_conn->current_packet->hdr).origin),&hdr.origin))
+				if(!rimeaddr_cmp(&((hdcp_conn->current_packet->hdr).origin),&hdr.origin))
 					return;
 
-				ctimer_stop(&bcp_conn->retransmission_timer);
-				// if(timer_expired(&bcp_conn->delay_timer) != 0) 
+				ctimer_stop(&hdcp_conn->retransmission_timer);
+				// if(timer_expired(&hdcp_conn->delay_timer) != 0) 
 				// {
 				// 	//PRINTF("hdcp: ERROR: delay_timer expired.\n");
 				// }
 				//DR("DELAY_TIME= %d\n",DELAY_TIME);//it equals 15360 (ticks)
-				uint32_t link_estimate_time = DELAY_TIME- timer_remaining(&bcp_conn->delay_timer);
+				uint32_t link_estimate_time = DELAY_TIME- timer_remaining(&hdcp_conn->delay_timer);
 				//PRINTF("link_estimate_time= %d\n",link_estimate_time);//also in ticks
-				//PRINTF("tx_count= %d(in unicast where it will be used)\n",bcp_conn->tx_count);
-				routingtable_update_link_rate(&bcp_conn->routing_table, from,link_estimate_time);
-				//routingtable_update_link_success(&bcp_conn->routing_table, from, bcp_conn->tx_count);
-				routingtable_update_link_status(&bcp_conn->routing_table, from, true);
-				bcp_conn->tx_count = 0;
-				if(bcp_conn->current_packet)
-					packetstack_remove(&bcp_conn->send_stack,bcp_conn->current_packet);
-				bcp_conn->current_packet = NULL;
-				bcp_conn->sending = false;// Reset BCP connection for next packet to send
+				//PRINTF("tx_count= %d(in unicast where it will be used)\n",hdcp_conn->tx_count);
+				routingtable_update_link_rate(&hdcp_conn->routing_table, from,link_estimate_time);
+				//routingtable_update_link_success(&hdcp_conn->routing_table, from, hdcp_conn->tx_count);
+				routingtable_update_link_status(&hdcp_conn->routing_table, from, true);
+				hdcp_conn->tx_count = 0;
+				if(hdcp_conn->current_packet)
+					packetstack_remove(&hdcp_conn->send_stack,hdcp_conn->current_packet);
+				hdcp_conn->current_packet = NULL;
+				hdcp_conn->sending = false;// Reset HDCP connection for next packet to send
 
 				//PG CORRECTED//
-				if(ctimer_expired(&bcp_conn->send_timer)) // Reset the send data timer
+				if(ctimer_expired(&hdcp_conn->send_timer)) // Reset the send data timer
 				{
 					clock_time_t time1 = SEND_TIME_DELAY;
-					ctimer_set(&bcp_conn->send_timer, time1, send_packet_pg, bcp_conn);// Reset the send data timer
+					ctimer_set(&hdcp_conn->send_timer, time1, send_packet_pg, hdcp_conn);// Reset the send data timer
 				}
 				//PG CORRECTED//
 			}
@@ -412,7 +412,7 @@ bool first_send=0;
 	static const struct broadcast_callbacks broadcast_callbacks = {recv_from_broadcast,sent_from_broadcast };
 	static const struct unicast_callbacks unicast_callbacks = { recv_from_unicast };
 	/*---------------------------------------------------------------------------*/
-	struct packetstack_item *push_data_packet(struct bcp_conn *c)
+	struct packetstack_item *push_data_packet(struct hdcp_conn *c)
 	{
 		struct packetstack_item *i;
 		uint16_t p = 0;
@@ -435,7 +435,7 @@ bool first_send=0;
 		rimeaddr_t addr_broadcast;  // Broadcast address
 		addr_broadcast.u8[0] = 0;
 		addr_broadcast.u8[1] = 0;
-		struct bcp_conn *c = ptr;
+		struct hdcp_conn *c = ptr;
 		struct beacon_msg beacon;
 		//static rimeaddr_t addr;
 		//addr.u8[0]=9;
@@ -507,11 +507,11 @@ bool first_send=0;
 			//PRINTF("packetstack_length = %d\n",packetstack_len(&(c->send_stack)) );
 			//PRINTF("virtual_queue_size = %d\n",c->virtual_queue_size);
 
-			i->hdr.bcp_backpressure = bp;//PG
+			i->hdr.hdcp_backpressure = bp;//PG
 			if(OWNDEBUG)
 			{
-				if(i->hdr.bcp_backpressure>100)
-					printf("Packet BP ERROR: %d",i->hdr.bcp_backpressure);
+				if(i->hdr.hdcp_backpressure>100)
+					printf("Packet BP ERROR: %d",i->hdr.hdcp_backpressure);
 			}
 			//PG
 			if (i->hdr.timestamp != 0)
@@ -629,7 +629,7 @@ bool first_send=0;
 		rimeaddr_t addr_broadcast;  // Broadcast address
 		addr_broadcast.u8[0] = 0;
 		addr_broadcast.u8[1] = 0;
-		struct bcp_conn *c = ptr;
+		struct hdcp_conn *c = ptr;
 		struct beacon_msg beacon;
 		if(c->sending == false) 
 			c->sending = true;
@@ -659,7 +659,7 @@ bool first_send=0;
 		rimeaddr_t addr_broadcast;  // Broadcast address
 		addr_broadcast.u8[0] = 0;
 		addr_broadcast.u8[1] = 0;
-		struct bcp_conn *c = ptr;
+		struct hdcp_conn *c = ptr;
 		//struct beacon_msg *beacon;
 		//static rimeaddr_t addr;
 		//addr.u8[0]=9;
@@ -681,7 +681,7 @@ bool first_send=0;
 			c->sending=false;
 			ctimer_reset(&c->beacon_timer);// Start beaconing
 			clock_time_t time1 = SEND_TIME_DELAY;
-			//PRINTF("bcp_send called\n");
+			//PRINTF("hdcp_send called\n");
 		    ctimer_set(&c->send_timer, time1, send_packet_pg, c);
 		    if(ctimer_expired(&c->beacon_timer))
 		    	send_beacon(c);
@@ -700,7 +700,7 @@ bool first_send=0;
 
 			uint16_t bp = packetstack_len(&(c->send_stack)) + c->virtual_queue_size;
 			
-			i->hdr.bcp_backpressure = bp;//packetstack_len(&(c->send_stack)) + c->virtual_queue_size;//PG
+			i->hdr.hdcp_backpressure = bp;//packetstack_len(&(c->send_stack)) + c->virtual_queue_size;//PG
 			
 			//PG
 			if (i->hdr.timestamp != 0) 
@@ -719,7 +719,7 @@ bool first_send=0;
 				ctimer_set(&c->retransmission_timer, time1, send_restrans, c);
 				//ctimer_stop(&c->retransmission_timer);
 		        //clock_time_t time2 = SEND_TIME_DELAY;
-				//PRINTF("bcp_send called\n");
+				//PRINTF("hdcp_send called\n");
 				//ctimer_set(&c->send_timer, time2, send_packet_pg, c);
 				if(ctimer_expired(&c->beacon_timer))
 					send_beacon(c);
@@ -799,7 +799,7 @@ bool first_send=0;
 		//PG
 		//PRINTF("retransmit_callback\n");	
 		//
-		struct bcp_conn *c = ptr;
+		struct hdcp_conn *c = ptr;
 		//c->sending = false;
 		routingtable_update_link_status(&c->routing_table, &c->active_neighbor, false);
 		if(c->tx_count >= MAX_ACK_REXMITS) 
@@ -808,7 +808,7 @@ bool first_send=0;
 			//packetstack_remove(&c->send_stack, c->current_packet);// Drop the packet
 			//uint32_t link_estimate_time = DELAY_TIME- timer_remaining(&c->delay_timer);
 			//PRINTF("link_estimate_time= %d\n",link_estimate_time);//also in ticks
-			//PRINTF("tx_count= %d(in unicast where it will be used)\n",bcp_conn->tx_count);
+			//PRINTF("tx_count= %d(in unicast where it will be used)\n",hdcp_conn->tx_count);
 			//routingtable_update_link_rate(&c->routing_table, &c->active_neighbor,link_estimate_time);
 		
 			//routingtable_update_link_success(&c->routing_table, &c->active_neighbor, c->tx_count);
@@ -835,13 +835,13 @@ bool first_send=0;
 	}
 
 	/*---------------------------------------------------------------------------*/
-	void bcp_open(struct bcp_conn *c, uint16_t channel,const struct bcp_callbacks *callbacks)
+	void hdcp_open(struct hdcp_conn *c, uint16_t channel,const struct hdcp_callbacks *callbacks)
 	{
-		//PRINTF("bcp_open called\n");
+		//PRINTF("hdcp_open called\n");
 		c->cb = callbacks;// Assign the callbacks to the connection struct
-		//PRINTF("bcp_open flag 1\n");
+		//PRINTF("hdcp_open flag 1\n");
 		LIST_STRUCT_INIT(c, send_stack_list);// Initialize the send stack LIST
-		//PRINTF("(in bcp_open)tx_count= %d\n",c->tx_count);
+		//PRINTF("(in hdcp_open)tx_count= %d\n",c->tx_count);
 		LIST_STRUCT_INIT(c, routing_table_list);// Initialize the routing table of neighbors LIST
 		c->send_stack.list = &(c->send_stack_list);// Initialize send stack
 		c->send_stack.memb = &send_stack_memb;
@@ -855,18 +855,18 @@ bool first_send=0;
 		addr.u8[0] = 0;
 		addr.u8[1] = 0;
 		rimeaddr_copy(&c->active_neighbor, &addr);
-		//PRINTF("bcp_open flag 2\n");
+		//PRINTF("hdcp_open flag 2\n");
 		broadcast_open(&c->broadcast_conn, channel, &broadcast_callbacks);// Open the broadcast connection for data packets and beacons
 		channel_set_attributes(channel, attributes);
-		//PRINTF("bcp_open flag 3\n");
+		//PRINTF("hdcp_open flag 3\n");
 		unicast_open(&c->unicast_conn, channel + 1, &unicast_callbacks);// Open the unicast connection for ACKs (channel + 1)
 		channel_set_attributes(channel + 1, attributes);
-		//PRINTF("bcp_open flag 4\n");
+		//PRINTF("hdcp_open flag 4\n");
 		send_beacon(c);// Start Beaconing
-		//PRINTF("bcp_open flag 5\n");
+		//PRINTF("hdcp_open flag 5\n");
 	}
 	/*---------------------------------------------------------------------------*/
-	void bcp_close(struct bcp_conn *c)
+	void hdcp_close(struct hdcp_conn *c)
 	{
 		broadcast_close(&c->broadcast_conn);// Close the broadcast connection
 		unicast_close(&c->unicast_conn);// Close the unicast connection
@@ -878,10 +878,10 @@ bool first_send=0;
 		}
 	}
 	/*---------------------------------------------------------------------------*/
-	int bcp_send(struct bcp_conn *c)
+	int hdcp_send(struct hdcp_conn *c)
 	{
 
-		//PRINTF("bcp_send called\n");
+		//PRINTF("hdcp_send called\n");
 		struct packetstack_item *i;
 		//PRINTF("my addr= %d\n",rimeaddr_node_addr);
 		// static rimeaddr_t addr2,addr4;
@@ -910,9 +910,9 @@ bool first_send=0;
 			if(ctimer_expired(&c->send_timer)&&(!c->sending)) // Reset the send data timer
 			{
 				clock_time_t time1 = SEND_TIME_DELAY;
-				//PRINTF("bcp_send called\n");
+				//PRINTF("hdcp_send called\n");
 				ctimer_set(&c->send_timer, time1, send_packet_pg, c);
-				//PRINTF("bcp_send flag 2\n");
+				//PRINTF("hdcp_send flag 2\n");
 			}
 
 			return 1;
@@ -920,14 +920,14 @@ bool first_send=0;
 		if(ctimer_expired(&c->send_timer)&&(!c->sending))// Reset the send data timer
 		{
 			clock_time_t time1 = SEND_TIME_DELAY;
-		 	//PRINTF("bcp_send flag 3\n");
+		 	//PRINTF("hdcp_send flag 3\n");
 		 	ctimer_set(&c->send_timer, time1, send_packet_pg, c);
-		 	//PRINTF("bcp_send flag 4\n");
+		 	//PRINTF("hdcp_send flag 4\n");
 	 	}
 	 	return 0;
 	}
 	/*---------------------------------------------------------------------------*/
-	static void send_ack(struct bcp_conn *bc, const rimeaddr_t *to, const rimeaddr_t *from, uint16_t seq_no)
+	static void send_ack(struct hdcp_conn *bc, const rimeaddr_t *to, const rimeaddr_t *from, uint16_t seq_no)
 	{
 		// if(tx_flag)
 		// 	PRINTF("Collision. BOooMMM\n");
@@ -950,11 +950,11 @@ bool first_send=0;
 		//PRINTF("send_ack flag 2\n");
 	}
 	/*---------------------------------------------------------------------------*/
-	void bcp_set_sink(struct bcp_conn *c, const rimeaddr_t *addr)
+	void hdcp_set_sink(struct hdcp_conn *c, const rimeaddr_t *addr)
 	{
 		if(rimeaddr_cmp(addr, &rimeaddr_node_addr)) // This node IS a sink node
 		{  
-			//PRINTF("bcp_set_sink: %d.%d set as sink node.\n", rimeaddr_node_addr.u8[0], rimeaddr_node_addr.u8[1]);
+			//PRINTF("hdcp_set_sink: %d.%d set as sink node.\n", rimeaddr_node_addr.u8[0], rimeaddr_node_addr.u8[1]);
 			c->is_sink = true;
 			c->virtual_queue_size = 0;// As soon as we are root, should have zero virtual queue
 		} 

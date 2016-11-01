@@ -3,8 +3,8 @@
 // read license file in main directory for more details
 
 
-#ifndef __BCP_H__
-#define __BCP_H__
+#ifndef __HDCP_H__
+#define __HDCP_H__
 
 #include <stdbool.h>
 
@@ -15,7 +15,7 @@
 #include "packetstack.h"
 #include "routingtable.h"
 
-#define BCP_ATTRIBUTES  { PACKETBUF_ADDR_ERECEIVER,     PACKETBUF_ADDRSIZE }, \
+#define HDCP_ATTRIBUTES  { PACKETBUF_ADDR_ERECEIVER,     PACKETBUF_ADDRSIZE }, \
             { PACKETBUF_ATTR_PACKET_ID,   PACKETBUF_ATTR_BIT * 16 }, \
             { PACKETBUF_ATTR_PACKET_TYPE, PACKETBUF_ATTR_BIT * 3 }, \
             { PACKETBUF_ATTR_MAX_REXMIT,  PACKETBUF_ATTR_BIT * 5 }, \
@@ -25,13 +25,13 @@
 #define PACKETBUF_ATTR_PACKET_TYPE_BEACON    5
 
 // Forward declaration
-struct bcp_conn;
+struct hdcp_conn;
 
-struct bcp_callbacks {
-  void (*recv)(struct bcp_conn *c,struct data_hdr hdr);
+struct hdcp_callbacks {
+  void (*recv)(struct hdcp_conn *c,struct data_hdr hdr);
 };
 
-struct bcp_conn {
+struct hdcp_conn {
 
   // Broadcast connection for data packets and beacons
   struct broadcast_conn broadcast_conn;
@@ -59,7 +59,7 @@ struct bcp_conn {
   struct routingtable routing_table;
 
   // Callbacks for the end user
-  const struct bcp_callbacks *cb;
+  const struct hdcp_callbacks *cb;
 
   // The packet currently being sent
   struct packetstack_item *current_packet;
@@ -79,15 +79,15 @@ struct bcp_conn {
   clock_time_t send_time;
 };
 
-void bcp_open(struct bcp_conn *c, uint16_t channel,
-              const struct bcp_callbacks *callbacks);
+void hdcp_open(struct hdcp_conn *c, uint16_t channel,
+              const struct hdcp_callbacks *callbacks);
 
-void bcp_close(struct bcp_conn *c);
+void hdcp_close(struct hdcp_conn *c);
 
-int bcp_send(struct bcp_conn *c);
+int hdcp_send(struct hdcp_conn *c);
 
-void bcp_set_sink(struct bcp_conn *c, const rimeaddr_t *addr);
+void hdcp_set_sink(struct hdcp_conn *c, const rimeaddr_t *addr);
 
-#endif /* __BCP_H__ */
+#endif /* __HDCP_H__ */
 /** @} */
 /** @} */
