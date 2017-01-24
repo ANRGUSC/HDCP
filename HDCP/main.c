@@ -110,7 +110,12 @@ PROCESS_THREAD(main_process, ev, data)
                 addr.u8[0] = 1;
                 addr.u8[1] = 0;
                 //PRINTF("6\n");
-                if(!rimeaddr_cmp(&addr, &rimeaddr_node_addr)) 
+                // if(!rimeaddr_cmp(&addr, &rimeaddr_node_addr)) 
+                // {
+                //     //PRINTF("7\n");            
+                //     hdcp_send(&hdcp);
+                // }
+                if(rimeaddr_node_addr.u8[0]>28) 
                 {
                     //PRINTF("7\n");            
                     hdcp_send(&hdcp);

@@ -1,6 +1,6 @@
-CONTIKI = /home/pradipta/ANRG/contiki-2.7
+CONTIKI = /home/pradipta/contiki
 PROJECT_SOURCEFILES = hdcp.c packetstack.c routingtable.c
-DEFINES = RF_CHANNEL=13, NETSTACK_CONF_MAC=csma_driver, NETSTACK_CONF_RDC=nullrdc_driver, TIMESYNCH_CONF_ENABLED=1, QUEUEBUF_CONF_NUM=30
+DEFINES = RF_CHANNEL=26, NETSTACK_CONF_MAC=csma_driver, NETSTACK_CONF_RDC=nullrdc_driver, TIMESYNCH_CONF_ENABLED=1, QUEUEBUF_CONF_NUM=30
 # RF_CHANNEL=13,
 #Load our own project-conf to employ nullrdc driver
 CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
