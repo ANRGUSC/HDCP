@@ -67,7 +67,7 @@ PROCESS_THREAD(main_process, ev, data)
 		//PRINTF("4\n");
     // etimer_set(&timer1, CLOCK_SECOND*60);
     // PROCESS_WAIT_EVENT();
-    etimer_set(&timer, 1*CLOCK_SECOND);
+    etimer_set(&timer, 4*CLOCK_SECOND);
     //   etimer_set(&timer1, 300*CLOCK_SECOND);
     while(1) 
 		{

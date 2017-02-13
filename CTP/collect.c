@@ -70,7 +70,7 @@ static const struct packetbuf_attrlist attributes[] =
    and the connection for packets that have been recently
    forwarded. This list is maintained to avoid forwarding duplicate
    packets. */
-#define NUM_RECENT_PACKETS 16
+#define NUM_RECENT_PACKETS 30
 
 struct recent_packet {
   struct collect_conn *conn;
@@ -125,7 +125,7 @@ struct ack_msg {
    full, incoming packets are dropped instead of being forwarded. */
 #define MAX_MAC_REXMITS            2
 #define MAX_ACK_MAC_REXMITS        5
-#define REXMIT_TIME                (CLOCK_SECOND * 32 / NETSTACK_RDC_CHANNEL_CHECK_RATE)
+#define REXMIT_TIME                (CLOCK_SECOND/10)
 #define FORWARD_PACKET_LIFETIME_BASE    REXMIT_TIME * 2
 #define MAX_SENDING_QUEUE          3 * QUEUEBUF_NUM / 4
 #define MIN_AVAILABLE_QUEUE_ENTRIES 4
@@ -160,7 +160,7 @@ MEMB(send_queue_memb, struct packetqueue_item, MAX_SENDING_QUEUE);
 #ifdef COLLECT_CONF_PROACTIVE_PROBING_INTERVAL
 #define PROACTIVE_PROBING_INTERVAL (random_rand() % (2 * COLLECT_CONF_PROACTIVE_PROBING_INTERVAL))
 #else /* COLLECT_CONF_PROACTIVE_PROBING_INTERVAL */
-#define PROACTIVE_PROBING_INTERVAL (random_rand() % CLOCK_SECOND * 60)
+#define PROACTIVE_PROBING_INTERVAL (random_rand() % CLOCK_SECOND * 15)
 #endif /* COLLECT_CONF_PROACTIVE_PROBING_INTERVAL */
 #define PROACTIVE_PROBING_REXMITS  15
 
@@ -625,6 +625,7 @@ send_queued_packet(struct collect_conn *c)
         MAX_MAC_REXMITS : c->max_rexmits;
       packetbuf_set_attr(PACKETBUF_ATTR_MAX_MAC_TRANSMISSIONS, max_mac_rexmits);
       packetbuf_set_attr(PACKETBUF_ATTR_PACKET_ID, c->seqno);
+      packetbuf_set_attr(PACKETBUF_ATTR_NUM_REXMIT,packetbuf_attr(PACKETBUF_ATTR_NUM_REXMIT)+1);
 
       stats.datasent++;
 
@@ -687,6 +688,8 @@ retransmit_current_packet(struct collect_conn *c)
     
     /* Place the queued packet into the packetbuf. */
     queuebuf_to_packetbuf(q);
+    // PRINTF("\n testing");
+    packetbuf_set_attr(PACKETBUF_ATTR_NUM_REXMIT,packetbuf_attr(PACKETBUF_ATTR_NUM_REXMIT)+1);
 
     /* Pick the neighbor to which to send the packet. If we have found
        a better parent while we were transmitting this packet, we
@@ -997,7 +1000,7 @@ node_packet_received(struct unicast_conn *c, const rimeaddr_t *from)
       }
 
       PRINTF("P_Sink_received_packet_at:%7lu   x %u     from %d.%d ",clock_time(), packetbuf_attr(PACKETBUF_ATTR_EPACKET_ID), packetbuf_addr(PACKETBUF_ADDR_ESENDER)->u8[0], rimeaddr_node_addr.u8[1]);
-      PRINTF("with_hop_count %u timestamp 0 and delay 0 etx 0\n",  packetbuf_attr(PACKETBUF_ATTR_HOPS));
+      PRINTF("with_hop_count %u timestamp 0 and delay 0 etx %u \n",  packetbuf_attr(PACKETBUF_ATTR_HOPS), packetbuf_attr(PACKETBUF_ATTR_NUM_REXMIT));
       
 
       // PRINTF("%d.%d: sink received packet %d from %d.%d via %d.%d\n",
@@ -1434,6 +1437,7 @@ collect_send(struct collect_conn *tc, int rexmits)
   } else {
     packetbuf_set_attr(PACKETBUF_ATTR_MAX_REXMIT, rexmits);
   }
+  packetbuf_set_attr(PACKETBUF_ATTR_NUM_REXMIT, 1);
 
   //PRINTF("%d.%d: originating packet %d, max_rexmits %d\n",
          // rimeaddr_node_addr.u8[0], rimeaddr_node_addr.u8[1],
