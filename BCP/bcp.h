@@ -76,13 +76,30 @@ struct bcp_conn {
   clock_time_t send_time;
 };
 
+/**
+ * [bcp_open description]
+ * @param c         [description]
+ * @param channel   [description]
+ * @param callbacks [description]
+ */
 void bcp_open(struct bcp_conn *c, uint16_t channel,
               const struct bcp_callbacks *callbacks);
-
+/**
+ * [bcp_close description]
+ * @param c [description]
+ */
 void bcp_close(struct bcp_conn *c);
-
+/**
+ * [bcp_send description]
+ * @param  c [description]
+ * @return   [description]
+ */
 int bcp_send(struct bcp_conn *c);
-
+/**
+ * [bcp_set_sink description]
+ * @param c    [description]
+ * @param addr [description]
+ */
 void bcp_set_sink(struct bcp_conn *c, const rimeaddr_t *addr);
 
 #endif /* __BCP_H__ */

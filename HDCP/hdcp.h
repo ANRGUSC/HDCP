@@ -1,7 +1,46 @@
-// Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
-// contributor: Pradipta Ghosh
-// read license file in main directory for more details
+/**
+ * Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
+ * Developed by:
+ * Autonomous Networks Research Group (ANRG)
+ * University of Southern California
+ * http://anrg.usc.edu/
+ *
+ * Contributors:
+ * Pradipta Ghosh
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy 
+ * of this software and associated documentation files (the "Software"), to deal
+ * with the Software without restriction, including without limitation the 
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+ * sell copies of the Software, and to permit persons to whom the Software is 
+ * furnished to do so, subject to the following conditions:
+ * - Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimers.
+ * - Redistributions in binary form must reproduce the above copyright notice, 
+ *     this list of conditions and the following disclaimers in the 
+ *     documentation and/or other materials provided with the distribution.
+ * - Neither the names of Autonomous Networks Research Group, nor University of 
+ *     Southern California, nor the names of its contributors may be used to 
+ *     endorse or promote products derived from this Software without specific 
+ *     prior written permission.
+ * - A citation to the Autonomous Networks Research Group must be included in 
+ *     any publications benefiting from the use of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH 
+ * THE SOFTWARE.
+ */
 
+/**
+ * @file        hdcp.h
+ * @brief       Main library for HDCP routing
+ *
+ * @author      Pradipta Ghosh <pradiptg@usc.edu>
+ * 
+ */
 
 #ifndef __HDCP_H__
 #define __HDCP_H__
@@ -79,13 +118,33 @@ struct hdcp_conn {
   clock_time_t send_time;
 };
 
+/**
+ * @brief open a new hdcp connection
+ * @param c         pointer to the connection structure
+ * @param channel   the channel number
+ * @param callbacks callback functions
+ */
 void hdcp_open(struct hdcp_conn *c, uint16_t channel,
               const struct hdcp_callbacks *callbacks);
 
+/**
+ * @brief close the hdcp connections
+ * @param c [pointer to the connection structure]
+ */
 void hdcp_close(struct hdcp_conn *c);
 
+/**
+ * Send a HDCP packet
+ * @param  c [pointer to the connection structure]
+ * @return   success status
+ */
 int hdcp_send(struct hdcp_conn *c);
 
+/**
+ * @brief if the node's address is @p addr, set the node as a sink node
+ * @param c    [pointer to the connection structure]
+ * @param addr the address of the sink node
+ */
 void hdcp_set_sink(struct hdcp_conn *c, const rimeaddr_t *addr);
 
 #endif /* __HDCP_H__ */

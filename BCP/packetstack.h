@@ -49,20 +49,54 @@ struct packetstack_item
                                 MEMB(name##_memb, struct packetstack_item, size); \
         static struct packetstack name = { &name##_list, \
                    &name##_memb }
-
+/**
+ * [packetstack_init description]
+ * @param s [description]
+ */
 void packetstack_init(struct packetstack *s);
-
+/**
+ * [packetstack_top description]
+ * @param  s [description]
+ * @return   [description]
+ */
 struct packetstack_item *packetstack_top(struct packetstack *s);
+/**
+ * [packetstack_bottom description]
+ * @param  s [description]
+ * @return   [description]
+ */
 struct packetstack_item *packetstack_bottom(struct packetstack *s);
+/**
+ * [packetstack_push_packetbuf description]
+ * @param  s   [description]
+ * @param  ptr [description]
+ * @param  p   [description]
+ * @return     [description]
+ */
 struct packetstack_item *packetstack_push_packetbuf(struct packetstack *s,
                                                     void *ptr, uint16_t *p);
-
+/**
+ * [packetstack_pop description]
+ * @param s [description]
+ */
 void packetstack_pop(struct packetstack *s);
-
+/**
+ * [packetstack_remove description]
+ * @param s [description]
+ * @param i [description]
+ */
 void packetstack_remove(struct packetstack *s, struct packetstack_item *i);
-
+/**
+ * [packetstack_len description]
+ * @param  s [description]
+ * @return   [description]
+ */
 int packetstack_len(struct packetstack *s);
-
+/**
+ * [packetstack_queuebuf description]
+ * @param  i [description]
+ * @return   [description]
+ */
 struct queuebuf *packetstack_queuebuf(struct packetstack_item *i);
 
 #endif /* __PACKETSTACK_H__ */
