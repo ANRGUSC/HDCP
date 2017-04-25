@@ -26,20 +26,32 @@ static uint16_t print_routing=1000;
 void dbg_print_rtitem(struct routingtable_item *rtitem);
 void dbg_print_rtable(struct routingtable *t);
 
-/*---------------------------------------------------------------------------*/
+/**
+ * [routingtable_init description]
+ * @param t [description]
+ */
 void routingtable_init(struct routingtable *t)
 {
   list_init(*t->list);
   memb_init(t->memb);
 }
-/*---------------------------------------------------------------------------*/
 
- int routingtable_update_routing(struct routingtable *t,
-                                 uint16_t localBackpressure_p,
-                                 rimeaddr_t *act_neighbor,
-                                 uint32_t *act_neighbor_bp,
-                                 uint16_t tx,
-                                 uint32_t *prev_etx)
+/**
+ * [routingtable_update_routing description]
+ * @param  t                   [description]
+ * @param  localBackpressure_p [description]
+ * @param  act_neighbor        [description]
+ * @param  act_neighbor_bp     [description]
+ * @param  tx                  [description]
+ * @param  prev_etx            [description]
+ * @return                     [description]
+ */
+int routingtable_update_routing(struct routingtable *t,
+                                uint16_t localBackpressure_p,
+                                rimeaddr_t *act_neighbor,
+                                uint32_t *act_neighbor_bp,
+                                uint16_t tx,
+                                uint32_t *prev_etx)
 {
   //PRINTF("routingtable_update_routing called\n");
   uint16_t compareIdx = 0;
@@ -219,6 +231,12 @@ void routingtable_init(struct routingtable *t)
 //   //PRINTF("and routingtable_update_link_success: link_etx = %lu\n", i -> link_etx/100);
 // }
 
+/**
+ * [routingtable_update_link_status description]
+ * @param t        [description]
+ * @param neighbor [description]
+ * @param success  [description]
+ */
 void routingtable_update_link_status(struct routingtable *t,const rimeaddr_t *neighbor,bool success)
 {
 //PRINTF("routingtable_update_link_success called\n ");
@@ -271,6 +289,12 @@ void routingtable_update_link_status(struct routingtable *t,const rimeaddr_t *ne
 }
 /*---------------------------------------------------------------------------*/
 /*--------WE DONOT USE THE FOLLLOWING FUNCTION----------------------------*/
+/**
+ * [routingtable_update_link_rate description]
+ * @param t                   [description]
+ * @param neighbor            [description]
+ * @param link_packet_tx_time [description]
+ */
 void routingtable_update_link_rate(struct routingtable *t,
                                    const rimeaddr_t *neighbor,
                                    uint16_t link_packet_tx_time)
@@ -307,6 +331,13 @@ void routingtable_update_link_rate(struct routingtable *t,
 }
 
 /*---------------------------------------------------------------------------*/
+/**
+ * [routing_table_update_entry description]
+ * @param  t                [description]
+ * @param  neighbor         [description]
+ * @param  rcv_backpressure [description]
+ * @return                  [description]
+ */
 int routing_table_update_entry(struct routingtable *t,
                                const rimeaddr_t *neighbor,
                                uint16_t rcv_backpressure)
@@ -380,12 +411,19 @@ int routing_table_update_entry(struct routingtable *t,
   // Return success
   return 1;
 }
-/*---------------------------------------------------------------------------*/
+/**
+ * [routingtable_len description]
+ * @param  t [description]
+ * @return   [description]
+ */
 int routingtable_len(struct routingtable *t)
 {
   return list_length(*t->list);
 }
-/*---------------------------------------------------------------------------*/
+/**
+ * [dbg_print_rtitem description]
+ * @param rtitem [description]
+ */
 void dbg_print_rtitem(struct routingtable_item *rtitem)
 {
   PRINTF("backpressure: %d\n", rtitem->backpressure);
@@ -394,7 +432,10 @@ void dbg_print_rtitem(struct routingtable_item *rtitem)
   PRINTF("is_bursty_now: %d\n", rtitem->is_bursty_now);
   PRINTF("neighbor: %d.%d\n", rtitem->neighbor.u8[0], rtitem->neighbor.u8[1]);
 }
-/*---------------------------------------------------------------------------*/
+/**
+ * [dbg_print_rtable description]
+ * @param t [description]
+ */
 void dbg_print_rtable(struct routingtable *t)
 {
   struct routingtable_item *i;

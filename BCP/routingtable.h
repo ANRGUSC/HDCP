@@ -40,23 +40,62 @@ struct routingtable_item {
   rimeaddr_t neighbor;
 };
 
+/**
+ * [routingtable_init description]
+ * @param t [description]
+ */
 void routingtable_init(struct routingtable *t);
-
+/**
+ * [routingtable_update_link_success description]
+ * @param t        [description]
+ * @param neighbor [description]
+ * @param tx_count [description]
+ */
 void routingtable_update_link_success(struct routingtable *t,
                                       const rimeaddr_t *neighbor,
                                       uint16_t tx_count);
-
+/**
+ * [routingtable_update_link_rate description]
+ * @param t                   [description]
+ * @param neighbor            [description]
+ * @param link_packet_tx_time [description]
+ */
 void routingtable_update_link_rate(struct routingtable *t,
                                    const rimeaddr_t *neighbor,
                                    uint16_t link_packet_tx_time);
-
+/**
+ * [routing_table_update_entry description]
+ * @param  t                [description]
+ * @param  neighbor         [description]
+ * @param  rcv_backpressure [description]
+ * @return                  [description]
+ */
 int routing_table_update_entry(struct routingtable *t,
                                const rimeaddr_t *neighbor,
                                uint16_t rcv_backpressure);
-
+/**
+ * [routingtable_update_link_status description]
+ * @param t        [description]
+ * @param neighbor [description]
+ * @param success  [description]
+ */
 void routingtable_update_link_status(struct routingtable *t,const rimeaddr_t *neighbor,bool success);
+/**
+ * [routingtable_len description]
+ * @param  t [description]
+ * @return   [description]
+ */
 int routingtable_len(struct routingtable *t);
-
+/**
+ * [routingtable_update_routing description]
+ * @param  t                [description]
+ * @param  rcv_backpressure [description]
+ * @param  act_neighbor     [description]
+ * @param  act_neighbor_bp  [description]
+ * @param  tx               [description]
+ * @param  prev_etx         [description]
+ * @return                  [description]
+ */
 int routingtable_update_routing(struct routingtable *t,
                                 uint16_t rcv_backpressure,
                                 rimeaddr_t *act_neighbor,

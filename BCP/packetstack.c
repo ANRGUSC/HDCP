@@ -5,12 +5,22 @@
 #include "packetstack.h"
 #define FIFO 0
 /*---------------------------------------------------------------------------*/
+/**
+ * [packetstack_init description]
+ * @param s [description]
+ */
 void packetstack_init(struct packetstack *s)
 {
   list_init(*s->list);
   memb_init(s->memb);
 }
-/*---------------------------------------------------------------------------*/
+/**
+ * [packetstack_push_packetbuf description]
+ * @param  s   [description]
+ * @param  ptr [description]
+ * @param  p   [description]
+ * @return     [description]
+ */
 struct packetstack_item *
 packetstack_push_packetbuf(struct packetstack *s, void *ptr, uint16_t *p)
 {
@@ -53,19 +63,29 @@ packetstack_push_packetbuf(struct packetstack *s, void *ptr, uint16_t *p)
   
   return packetstack_top(s);
 }
-/*---------------------------------------------------------------------------*/
-struct packetstack_item *
-packetstack_top(struct packetstack *s)
+/**
+ * [packetstack_top description]
+ * @param  s [description]
+ * @return   [description]
+ */
+struct packetstack_item *packetstack_top(struct packetstack *s)
 {
   return list_head(*s->list);
 }
 
-/*---------------------------------------------------------------------------*/
-struct packetstack_item *
-packetstack_bottom(struct packetstack *s)
+/**
+ * [packetstack_bottom description]
+ * @param  s [description]
+ * @return   [description]
+ */
+struct packetstack_item *packetstack_bottom(struct packetstack *s)
 {
   return list_tail(*s->list);
 }
+/**
+ * [packetstack_pop description]
+ * @param s [description]
+ */
 void packetstack_pop(struct packetstack *s)
 {
   struct packetstack_item *i;
@@ -78,7 +98,11 @@ void packetstack_pop(struct packetstack *s)
     memb_free(s->memb, i);
   }
 }
-/*---------------------------------------------------------------------------*/
+/**
+ * [packetstack_remove description]
+ * @param s [description]
+ * @param i [description]
+ */
 void packetstack_remove(struct packetstack *s, struct packetstack_item *i)
 {
   if(i != NULL) 
@@ -88,14 +112,21 @@ void packetstack_remove(struct packetstack *s, struct packetstack_item *i)
     memb_free(s->memb, i);
   }
 }
-/*---------------------------------------------------------------------------*/
+/**
+ * [packetstack_len description]
+ * @param  s [description]
+ * @return   [description]
+ */
 int packetstack_len(struct packetstack *s)
 {
   return list_length(*s->list);
 }
-/*---------------------------------------------------------------------------*/
-struct queuebuf *
-packetstack_queuebuf(struct packetstack_item *i)
+/**
+ * [packetstack_queuebuf description]
+ * @param  i [description]
+ * @return   [description]
+ */
+struct queuebuf *packetstack_queuebuf(struct packetstack_item *i)
 {
   if(i != NULL) 
   {
