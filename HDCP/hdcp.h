@@ -79,13 +79,33 @@ struct hdcp_conn {
   clock_time_t send_time;
 };
 
+/**
+ * @brief open a new hdcp connection
+ * @param c         pointer to the connection structure
+ * @param channel   the channel number
+ * @param callbacks callback functions
+ */
 void hdcp_open(struct hdcp_conn *c, uint16_t channel,
               const struct hdcp_callbacks *callbacks);
 
+/**
+ * @brief close the hdcp connections
+ * @param c [pointer to the connection structure]
+ */
 void hdcp_close(struct hdcp_conn *c);
 
+/**
+ * Send a HDCP packet
+ * @param  c [pointer to the connection structure]
+ * @return   success status
+ */
 int hdcp_send(struct hdcp_conn *c);
 
+/**
+ * @brief if the node's address is @p addr, set the node as a sink node
+ * @param c    [pointer to the connection structure]
+ * @param addr the address of the sink node
+ */
 void hdcp_set_sink(struct hdcp_conn *c, const rimeaddr_t *addr);
 
 #endif /* __HDCP_H__ */
