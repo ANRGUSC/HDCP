@@ -1,10 +1,49 @@
-// Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
-// contributor: Pradipta Ghosh
-// read license file in main directory for more details
+/**
+ * Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
+ * Developed by:
+ * Autonomous Networks Research Group (ANRG)
+ * University of Southern California
+ * http://anrg.usc.edu/
+ *
+ * Contributors:
+ * Pradipta Ghosh
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy 
+ * of this software and associated documentation files (the "Software"), to deal
+ * with the Software without restriction, including without limitation the 
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+ * sell copies of the Software, and to permit persons to whom the Software is 
+ * furnished to do so, subject to the following conditions:
+ * - Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimers.
+ * - Redistributions in binary form must reproduce the above copyright notice, 
+ *     this list of conditions and the following disclaimers in the 
+ *     documentation and/or other materials provided with the distribution.
+ * - Neither the names of Autonomous Networks Research Group, nor University of 
+ *     Southern California, nor the names of its contributors may be used to 
+ *     endorse or promote products derived from this Software without specific 
+ *     prior written permission.
+ * - A citation to the Autonomous Networks Research Group must be included in 
+ *     any publications benefiting from the use of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH 
+ * THE SOFTWARE.
+ */
 
+/**
+ * @file        bcp.h
+ * @brief       Main library for bcp routing
+ *
+ * @author      Pradipta Ghosh <pradiptg@usc.edu>
+ * 
+ */
 
-#ifndef __BCP_H__
-#define __BCP_H__
+#ifndef __bcp_H__
+#define __bcp_H__
 
 #include <stdbool.h>
 
@@ -15,10 +54,12 @@
 #include "packetstack.h"
 #include "routingtable.h"
 
-#define BCP_ATTRIBUTES  { PACKETBUF_ADDR_ERECEIVER,     PACKETBUF_ADDRSIZE }, \
+#define bcp_ATTRIBUTES  { PACKETBUF_ADDR_ERECEIVER,     PACKETBUF_ADDRSIZE }, \
             { PACKETBUF_ATTR_PACKET_ID,   PACKETBUF_ATTR_BIT * 16 }, \
             { PACKETBUF_ATTR_PACKET_TYPE, PACKETBUF_ATTR_BIT * 3 }, \
-                            BROADCAST_ATTRIBUTES
+            { PACKETBUF_ATTR_MAX_REXMIT,  PACKETBUF_ATTR_BIT * 5 }, \
+            { PACKETBUF_ATTR_NUM_REXMIT, PACKETBUF_ATTR_BIT * 5},\
+            BROADCAST_ATTRIBUTES
 
 #define PACKETBUF_ATTR_PACKET_TYPE_BEACON    5
 
@@ -64,6 +105,7 @@ struct bcp_conn {
   struct packetstack_item *packet_not_acked;
 
   uint16_t tx_count;
+  uint8_t max_rexmits,transmissions;
   uint16_t virtual_queue_size;
   uint32_t prev_etx;
   bool sending;
@@ -77,31 +119,34 @@ struct bcp_conn {
 };
 
 /**
- * [bcp_open description]
- * @param c         [description]
- * @param channel   [description]
- * @param callbacks [description]
+ * @brief open a new bcp connection
+ * @param c         pointer to the connection structure
+ * @param channel   the channel number
+ * @param callbacks callback functions
  */
 void bcp_open(struct bcp_conn *c, uint16_t channel,
               const struct bcp_callbacks *callbacks);
+
 /**
- * [bcp_close description]
- * @param c [description]
+ * @brief close the bcp connections
+ * @param c [pointer to the connection structure]
  */
 void bcp_close(struct bcp_conn *c);
+
 /**
- * [bcp_send description]
- * @param  c [description]
- * @return   [description]
+ * Send a bcp packet
+ * @param  c [pointer to the connection structure]
+ * @return   success status
  */
 int bcp_send(struct bcp_conn *c);
+
 /**
- * [bcp_set_sink description]
- * @param c    [description]
- * @param addr [description]
+ * @brief if the node's address is @p addr, set the node as a sink node
+ * @param c    [pointer to the connection structure]
+ * @param addr the address of the sink node
  */
 void bcp_set_sink(struct bcp_conn *c, const rimeaddr_t *addr);
 
-#endif /* __BCP_H__ */
+#endif /* __bcp_H__ */
 /** @} */
 /** @} */

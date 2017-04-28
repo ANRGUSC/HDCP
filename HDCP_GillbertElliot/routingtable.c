@@ -1,6 +1,46 @@
-// Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
-// contributor: Pradipta Ghosh
-// read license file in main directory for more details
+/**
+ * Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
+ * Developed by:
+ * Autonomous Networks Research Group (ANRG)
+ * University of Southern California
+ * http://anrg.usc.edu/
+ *
+ * Contributors:
+ * Pradipta Ghosh
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy 
+ * of this software and associated documentation files (the "Software"), to deal
+ * with the Software without restriction, including without limitation the 
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+ * sell copies of the Software, and to permit persons to whom the Software is 
+ * furnished to do so, subject to the following conditions:
+ * - Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimers.
+ * - Redistributions in binary form must reproduce the above copyright notice, 
+ *     this list of conditions and the following disclaimers in the 
+ *     documentation and/or other materials provided with the distribution.
+ * - Neither the names of Autonomous Networks Research Group, nor University of 
+ *     Southern California, nor the names of its contributors may be used to 
+ *     endorse or promote products derived from this Software without specific 
+ *     prior written permission.
+ * - A citation to the Autonomous Networks Research Group must be included in 
+ *     any publications benefiting from the use of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH 
+ * THE SOFTWARE.
+ */
+
+/**
+ * @file        routingtable.c
+ * @brief       Helper library for HDCP routing
+ *
+ * @author      Pradipta Ghosh <pradiptg@usc.edu>
+ * 
+ */
 
 #include "routingtable.h"
 
@@ -98,15 +138,14 @@ int routingtable_update_routing(struct routingtable *t,
     #if SWITCHING
       if (i->is_bursty_now){ //If a neighbor is previously tried in transmitting this packet, skip that
         PRINTF("routingtable: Moving to next neighbor from %d:%d\n",i->neighbor.u8[0],i->neighbor.u8[1]);
-        if(i->last_count>1)
+        if(i->last_count > 1)
           continue;
       }
     #endif /* SWITCHING */
 
     if (i->lifetime == 0)
       continue;
-    
-    
+   
     NeighborBackpressure = i->backpressure;
 
     //---------------Calculate the ETX based on the Markov chain transitions-----------------//
@@ -202,7 +241,7 @@ int routingtable_update_routing(struct routingtable *t,
   {
     flag_g = 2;
     *prev_etx = 1000;
-    PRINTF("routingtable: no neighbor with positive weight exist\n");
+    PRINTF_LVL2("routingtable: no neighbor with positive weight exist\n");
     return RT_FAILURE;
   } 
 }
