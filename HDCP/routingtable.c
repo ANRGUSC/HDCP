@@ -1,11 +1,53 @@
-// Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
-// contributor: Pradipta Ghosh
-// read license file in main directory for more details
+/**
+ * Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
+ * Developed by:
+ * Autonomous Networks Research Group (ANRG)
+ * University of Southern California
+ * http://anrg.usc.edu/
+ *
+ * Contributors:
+ * Pradipta Ghosh
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy 
+ * of this software and associated documentation files (the "Software"), to deal
+ * with the Software without restriction, including without limitation the 
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+ * sell copies of the Software, and to permit persons to whom the Software is 
+ * furnished to do so, subject to the following conditions:
+ * - Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimers.
+ * - Redistributions in binary form must reproduce the above copyright notice, 
+ *     this list of conditions and the following disclaimers in the 
+ *     documentation and/or other materials provided with the distribution.
+ * - Neither the names of Autonomous Networks Research Group, nor University of 
+ *     Southern California, nor the names of its contributors may be used to 
+ *     endorse or promote products derived from this Software without specific 
+ *     prior written permission.
+ * - A citation to the Autonomous Networks Research Group must be included in 
+ *     any publications benefiting from the use of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH 
+ * THE SOFTWARE.
+ */
+
+/**
+ * @file        routingtable.c
+ * @brief       Helper library for HDCP routing
+ *
+ * @author      Pradipta Ghosh <pradiptg@usc.edu>
+ * 
+ */
 
 
 #include "routingtable.h"
 
-#define DEBUG 0
+#define DEBUG         0
+#define OWNDEBUG      0
+
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -14,6 +56,14 @@
 #define PRINTF(...)
 #define PRINTF_RTABLE(Y)
 #endif
+
+#if OWNDEBUG
+  #include <stdio.h>
+  #define PRINTF_LVL2(...) printf(__VA_ARGS__)
+#else
+  #define PRINTF_LVL2(...)
+#endif
+
 #define OWNDEBUG      0
 #define SWITCHING     0
 #define ORIGINAL      1       // Original HD algorithm without modifications
@@ -55,19 +105,19 @@ int routingtable_update_routing(struct routingtable *t,
                                  uint16_t tx,
                                  uint32_t *prev_etx)
 {
-  uint16_t         compareIdx = 0;
-  int32_t          compareWeight = 0;
-  int32_t          maxWeight = -1;
-  int32_t          maxWeight1 = -1;
+  uint16_t         compareIdx           = 0;
+  int32_t          compareWeight        = 0;
+  int32_t          maxWeight            = -1;
+  int32_t          maxWeight1           = -1;
   uint16_t         NeighborBackpressure = 0;
-  uint16_t         link_ETX = 0;
-  uint16_t         etx_best = 0;
-  uint16_t         phi = 0;
-  uint16_t         phi1 = 0;
-  int16_t          queue_differ = 0;
-  int16_t          f_ij = 0;
-  static uint16_t  mu_ij = 100;
-  uint16_t         beta = 100;
+  uint16_t         link_ETX             = 0;
+  uint16_t         etx_best             = 0;
+  uint16_t         phi                  = 0;
+  uint16_t         phi1                 = 0;
+  int16_t          queue_differ         = 0;
+  int16_t          f_ij                 = 0;
+  static uint16_t  mu_ij                = 100;
+  uint16_t         beta                 = 100;
  
   struct routingtable_item *i;
   struct routingtable_item *maxWeightPtr = NULL;
@@ -118,11 +168,8 @@ int routingtable_update_routing(struct routingtable *t,
     else
       f_ij = mu_ij;
     
-    if(OWNDEBUG)
-    {
-      PRINTF("routingtable: Phi = %d \n",phi);
-      PRINTF("routingtable: f_ij = %d \n",f_ij);
-    }
+    PRINTF_LVL2("routingtable: Phi = %d \n",phi);
+    PRINTF_LVL2("routingtable: f_ij = %d \n",f_ij);
 
     //------Calculate the weight of the link------------------//
     if(ORIGINAL)
@@ -135,16 +182,14 @@ int routingtable_update_routing(struct routingtable *t,
     else
       compareWeight = 2*(phi* queue_differ)-(f_ij);
 
-    if(OWNDEBUG)
-    {
-      PRINTF("routingtable: ENTRY: ");
-      PRINTF("routingtable: ETX = %u ",link_ETX);
-      PRINTF("routingtable: Neighbor_BP = %u ",NeighborBackpressure);
-      PRINTF("routingtable: Local_BP = %u ",localBackpressure_p);
-      //PRINTF("queue_diff = %d ",queue_diff);
-      PRINTF("routingtable: Weight = %ld ",compareWeight);
-      PRINTF("routingtable: Neighbor %d:%d \n",(i->neighbor).u8[0],(i->neighbor).u8[1]);
-    }
+    PRINTF_LVL2("routingtable: ENTRY: ");
+    PRINTF_LVL2("routingtable: ETX = %u ",link_ETX);
+    PRINTF_LVL2("routingtable: Neighbor_BP = %u ",NeighborBackpressure);
+    PRINTF_LVL2("routingtable: Local_BP = %u ",localBackpressure_p);
+    //PRINTF_LVL2("queue_diff = %d ",queue_diff);
+    PRINTF_LVL2("routingtable: Weight = %ld ",compareWeight);
+    PRINTF_LVL2("routingtable: Neighbor %d:%d \n",(i->neighbor).u8[0],(i->neighbor).u8[1]);
+    
     if (queue_differ <= 0)
       continue;
 
@@ -175,8 +220,7 @@ int routingtable_update_routing(struct routingtable *t,
   {
     // There is a neighbor we should be transmitting to
     rimeaddr_copy(act_neighbor, &(maxWeightPtr->neighbor));
-    if(OWNDEBUG)
-      PRINTF("routingtable: Neighbor address %d:%d with backpressure %d\n",
+    PRINTF_LVL2("routingtable: Neighbor address %d:%d with backpressure %d\n",
                                 act_neighbor->u8[0],act_neighbor->u8[1],
                                             maxWeightPtr->backpressure);
         
@@ -243,8 +287,7 @@ int routing_table_update_entry(struct routingtable *t,
 {
 
   struct routingtable_item *i;
-  if(OWNDEBUG)
-    PRINTF("Neighbor Update %d:%d\n",neighbor->u8[0],neighbor->u8[1]);
+  PRINTF_LVL2("Neighbor Update %d:%d\n",neighbor->u8[0],neighbor->u8[1]);
 
   // Check for entry
   for(i = list_head(*t->list); i != NULL; i = list_item_next(i))
@@ -311,10 +354,6 @@ void dbg_print_rtitem(struct routingtable_item *rtitem)
   PRINTF("routingtable: neighbor: %d.%d\n", rtitem->neighbor.u8[0], rtitem->neighbor.u8[1]);
 }
 /*---------------------------------------------------------------------------*/
-/**
- * @brief prints a routing table entry
- * @param rtitem      pointer to a routing table entry
- */
 /**
  * @brief prints the entire routing table
  * @param t           pointer to the routing table
