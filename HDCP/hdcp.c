@@ -188,8 +188,7 @@ static void recv_from_broadcast(struct broadcast_conn *c, const rimeaddr_t *from
 
 	if ((packetbuf_attr(PACKETBUF_ATTR_PACKET_TYPE) == PACKETBUF_ATTR_PACKET_TYPE_DATA)
 						&&rimeaddr_cmp(&addr_final_destination,&rimeaddr_node_addr)) // Report the results
-	{
-		
+	{		
 		PRINTF_LVL2("hdcp: From %d:%d\n",from->u8[0],from->u8[1]);
 		PRINTF_LVL2("hdcp: packet data length = %d\n",packetbuf_datalen());
 
@@ -380,6 +379,7 @@ static void recv_from_unicast(struct unicast_conn *c, const rimeaddr_t *from)
 				clock_time_t time1 = SEND_TIME_DELAY;
 				ctimer_set(&hdcp_conn->send_timer, time1, send_packet_hdcp, hdcp_conn);// Reset the send data timer
 			}
+			//PG CORRECTED//
 		}
 	}
 }
@@ -439,6 +439,7 @@ static void send_packet_hdcp(void *ptr)
 							 rimeaddr_node_addr.u8[0], rimeaddr_node_addr.u8[1]);
 		if(ctimer_expired(&c->beacon_timer))
 			send_beacon(c);
+
 		if(VQ)
 		{
 			if(c->virtual_queue_size > 0) 
@@ -473,8 +474,7 @@ static void send_packet_hdcp(void *ptr)
 			i->hdr.delay = i->hdr.delay + (clock_time() - i->hdr.timestamp);	
 			i->hdr.timestamp=clock_time();
 		}
-		//i->hdr.tx_count=i->hdr.tx_count+1;	//PG
-		
+		//i->hdr.tx_count=i->hdr.tx_count+1;	//PG		
 		#if COUNTED
 			c->tx_count++;
 			if(c->tx_count <= 1) // Start the link rate timer if this is not a retransmit
@@ -583,7 +583,6 @@ static void send_beacon(void *ptr)
 		c->sending = true;
 	else 					// If the link is busy
 		return;
-
 	packetbuf_clear();
 	packetbuf_set_datalen(sizeof(struct beacon_msg));
 	//beacon = packetbuf_dataptr();
@@ -803,7 +802,6 @@ void hdcp_close(struct hdcp_conn *c)
  */
 int hdcp_send(struct hdcp_conn *c)
 {
-
 	//PRINTF("hdcp: hdcp_send called\n");
 	struct packetstack_item *i;
 	
