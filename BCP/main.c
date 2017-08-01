@@ -1,12 +1,13 @@
 /**
- * Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
+ * Copyright (c) 2017, Autonomous Networks Research Group. All rights reserved.
  * Developed by:
  * Autonomous Networks Research Group (ANRG)
  * University of Southern California
  * http://anrg.usc.edu/
  *
  * Contributors:
- * Pradipta Ghosh
+ * Pradipta Ghosh, 
+ * Bhaskar Krishnamachari 
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy 
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,10 +37,10 @@
 
 /**
  * @file        main.c
- * @brief       Example of using bcp routing libraries
+ * @brief       Example of using BCP routing libraries
  *
  * @author      Pradipta Ghosh <pradiptg@usc.edu>
- * 
+ * @author      Bhaskar Krishnamachari  <bkrishna@usc.edu> 
  */
 
 #include "contiki.h"

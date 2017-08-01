@@ -1,12 +1,13 @@
 /**
- * Copyright (c) 2016, Autonomous Networks Research Group. All rights reserved.
+ * Copyright (c) 2017, Autonomous Networks Research Group. All rights reserved.
  * Developed by:
  * Autonomous Networks Research Group (ANRG)
  * University of Southern California
  * http://anrg.usc.edu/
  *
  * Contributors:
- * Pradipta Ghosh
+ * Pradipta Ghosh, 
+ * Bhaskar Krishnamachari 
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy 
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,11 +37,13 @@
 
 /**
  * @file        packetstack.c
- * @brief       Main packetstack library for bcp from Contiki
+ * @brief       Main packetstack library for HDCP from Contiki
  *
  * @author      Pradipta Ghosh <pradiptg@usc.edu>
- * 
+ * @author      Bhaskar Krishnamachari  <bkrishna@usc.edu> 
+ *  
  */
+
 
 #include "packetstack.h"
 #define FIFO 0
